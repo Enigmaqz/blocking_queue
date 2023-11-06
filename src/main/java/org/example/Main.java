@@ -1,7 +1,4 @@
 package org.example;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -38,53 +35,17 @@ public class Main {
 
 
         var threadA = new Thread(() -> {
-            String buf;
-            int bufA;
-            for (int i = 0; i < texts.length; i++) {
-                try {
-                    buf = list1.take();
-                    bufA = buf.length() - buf.replace("a", "").length();
-                    if (counterA.get() < bufA) {
-                        counterA.set(bufA);
-                    }
-                } catch (InterruptedException e) {
-                    return;
-                }
-            }
+            threadProcedure(texts, list1, counterA, "a");
         });
         threadA.start();
 
         var threadB = new Thread(() -> {
-            String buf;
-            int bufB;
-            for (int i = 0; i < texts.length; i++) {
-                try {
-                    buf = list2.take();
-                    bufB = buf.length() - buf.replace("b", "").length();
-                    if (counterB.get() < bufB) {
-                        counterB.set(bufB);
-                    }
-                } catch (InterruptedException e) {
-                    return;
-                }
-            }
+            threadProcedure(texts, list2, counterB, "b");
         });
         threadB.start();
 
         var threadC = new Thread(() -> {
-            String buf;
-            int bufC;
-            for (int i = 0; i < texts.length; i++) {
-                try {
-                    buf = list3.take();
-                    bufC = buf.length() - buf.replace("c", "").length();
-                    if (counterC.get() < bufC) {
-                        counterC.set(bufC);
-                    }
-                } catch (InterruptedException e) {
-                    return;
-                }
-            }
+            threadProcedure(texts, list3, counterC, "c");
         });
         threadC.start();
 
@@ -106,5 +67,22 @@ public class Main {
             text.append(letters.charAt(random.nextInt(letters.length())));
         }
         return text.toString();
+    }
+
+
+    public static void threadProcedure (String[] texts, BlockingQueue<String> list, AtomicInteger counter, String target) {
+        String buf;
+        int bufLength;
+        for (int i = 0; i < texts.length; i++) {
+            try {
+                buf = list.take();
+                bufLength = buf.length() - buf.replace(target, "").length();
+                if (counter.get() < bufLength) {
+                    counter.set(bufLength);
+                }
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
     }
 }
